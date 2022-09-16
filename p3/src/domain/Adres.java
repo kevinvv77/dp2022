@@ -5,7 +5,7 @@ public class Adres {
     private String postcode;
     private String huisnummer;
     private String woonplaats;
-    private Reiziger reiziger;
+    private int reizigerId;
 
     public int getId() {
         return id;
@@ -39,12 +39,12 @@ public class Adres {
         this.woonplaats = woonplaats;
     }
 
-    public Reiziger getReiziger() {
-        return reiziger;
+    public int getReizigerId() {
+        return reizigerId;
     }
 
-    public void setReiziger(Reiziger reiziger) {
-        this.reiziger = reiziger;
+    public void setReizigerId(int reizigerId) {
+        this.reizigerId = reizigerId;
     }
 
     @Override
@@ -54,7 +54,7 @@ public class Adres {
                 ", postcode='" + postcode + '\'' +
                 ", huisnummer='" + huisnummer + '\'' +
                 ", woonplaats='" + woonplaats + '\'' +
-                ", reiziger=" + reiziger +
+                ", reizigerId=" + reizigerId +
                 '}';
     }
 }
