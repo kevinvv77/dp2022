@@ -1,4 +1,4 @@
-package data;
+package data.reiziger;
 
 import domain.Reiziger;
 

@@ -1,14 +1,18 @@
-import data.AdresDAO;
-import data.AdresDAOPsql;
-import data.ReizigerDAO;
-import data.ReizigerDAOPsql;
+import data.adres.AdresDAO;
+import data.adres.AdresDAOPsql;
+import data.ovchipkaart.OVChipkaartDAO;
+import data.ovchipkaart.OVChipkaartDAOPsql;
+import data.reiziger.ReizigerDAO;
+import data.reiziger.ReizigerDAOPsql;
 import domain.Adres;
+import domain.OVChipkaart;
 import domain.Reiziger;
 
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class Main {
     private static Connection connection;
@@ -16,9 +20,11 @@ public class Main {
         try {
             var connection = getConnection();
             var adao = new AdresDAOPsql(connection);
-            var rdao = new ReizigerDAOPsql(connection, adao);
+            var ovchipDAO = new OVChipkaartDAOPsql(connection);
+            var rdao = new ReizigerDAOPsql(connection, adao, ovchipDAO);
             testReizigerDAO(rdao);
             testAdresDAO(adao, rdao);
+            testOVChipkaartDAO(ovchipDAO);
 
             closeConnection();
         } catch (SQLException e) {
@@ -60,7 +66,10 @@ public class Main {
         // Maak een nieuwe reiziger aan en persisteer deze in de database
         var gbdatum = "1981-03-14";
         var adres = new Adres(6, "1111AB", "15", "Heidelberglaan", "Utrecht", 77);
-        var sietske = new Reiziger(77, "S", "", "Boers", Date.valueOf(gbdatum), adres);
+        var ovchipkaarten = new ArrayList<OVChipkaart>();
+        var ovchipkaart = new OVChipkaart(17800, Date.valueOf(gbdatum), 1, 20.0, 77);
+        ovchipkaarten.add(ovchipkaart);
+        var sietske = new Reiziger(77, "S", "", "Boers", Date.valueOf(gbdatum), adres, ovchipkaarten);
 
         System.out.println("[Test] Eerst " + reizigers.size() + " reizigers, na ReizigerDAO.save() ");
         rdao.save(sietske);
@@ -72,7 +81,10 @@ public class Main {
     private static void testAdresDAO(AdresDAO adao, ReizigerDAO rdao) {
         System.out.println("\n---------- Test AdresDAO -------------");
         var adres = new Adres(6, "1111AB", "15", "Heidelberglaan", "Utrecht", 1);
-        var reiziger = new Reiziger(1, "G", "van", "Rijn", Date.valueOf("2002-09-17"), adres);
+        var ovchipkaarten = new ArrayList<OVChipkaart>();
+        var ovchipkaart = new OVChipkaart(17800, Date.valueOf("2002-09-17"), 1, 20.0, 77);
+        ovchipkaarten.add(ovchipkaart);
+        var reiziger = new Reiziger(1, "G", "van", "Rijn", Date.valueOf("2002-09-17"), adres, ovchipkaarten);
 
         // Alle adressen
         var adressen = adao.findAll();
@@ -86,7 +98,7 @@ public class Main {
         // Adres opslaan
         System.out.println("[Test] Adres opslaan met id 7");
         var newAdres = new Adres(17, "1111AB", "15", "Heidelberglaan", "Utrecht", 88);
-        var newReiziger = new Reiziger(88, "S", "", "Boers", Date.valueOf("2002-09-17"), newAdres);
+        var newReiziger = new Reiziger(88, "S", "", "Boers", Date.valueOf("2002-09-17"), newAdres, new ArrayList<>());
         rdao.save(newReiziger); // rdao.save roept de dao van adres aan
         adressen = adao.findAll();
         for(var a : adressen) {
@@ -126,4 +138,26 @@ public class Main {
         System.out.println(adresByReiziger);
     }
 
+    private static void testOVChipkaartDAO(OVChipkaartDAO ovChipkaartDAO) {
+        System.out.println("\n---------- Test OVChipkaartDAO -------------");
+        var reiziger = new Reiziger(2, "B", "van", "Rijn", Date.valueOf("2002-10-22"), null, null);
+
+        // Alle ovchipkaarten
+        var ovChipkaarten = ovChipkaartDAO.findAll();
+        System.out.println("\nAlle ovchipkaarten");
+        for(var ovChipkaart : ovChipkaarten) {
+            System.out.println(ovChipkaart);
+        }
+
+        // find by id
+        System.out.println("\novchipkaart met het kaart nummer 35283");
+        var ovChipkaartById = ovChipkaartDAO.findById(35283);
+        System.out.println(ovChipkaartById);
+
+        System.out.println("\nOvChipkaarten zoeken met een reiziger");
+        var ovChipkaartenByReiziger = ovChipkaartDAO.findByReiziger(reiziger);
+        for(var ovChipkaart : ovChipkaartenByReiziger) {
+            System.out.println(ovChipkaart);
+        }
+    }
 }

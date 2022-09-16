@@ -1,6 +1,7 @@
 package domain;
 
 import java.sql.Date;
+import java.util.List;
 
 public class Reiziger {
     private int id;
@@ -10,15 +11,18 @@ public class Reiziger {
     private Date geboorteDatum;
     private Adres adres;
 
+    private List<OVChipkaart> ovChipkaartList;
+
     public Reiziger() {}
 
-    public Reiziger(int id, String voorletters, String tussenvoegels, String achternaam, Date geboorteDatum, Adres adres) {
+    public Reiziger(int id, String voorletters, String tussenvoegels, String achternaam, Date geboorteDatum, Adres adres, List<OVChipkaart> ovChipkaartList) {
         this.id = id;
         this.voorletters = voorletters;
         this.tussenvoegels = tussenvoegels;
         this.achternaam = achternaam;
         this.geboorteDatum = geboorteDatum;
         this.adres = adres;
+        this.ovChipkaartList = ovChipkaartList;
     }
 
     public int getId() {
@@ -69,6 +73,14 @@ public class Reiziger {
         this.adres = adres;
     }
 
+    public List<OVChipkaart> getOvChipkaartList() {
+        return ovChipkaartList;
+    }
+
+    public void setOvChipkaartList(List<OVChipkaart> ovChipkaartList) {
+        this.ovChipkaartList = ovChipkaartList;
+    }
+
     @Override
     public String toString() {
         return "Reiziger{" +
@@ -78,6 +90,7 @@ public class Reiziger {
                 ", achternaam='" + achternaam + '\'' +
                 ", geboorteDatum=" + geboorteDatum +
                 ", adres=" + adres +
+                ", ovChipkaartList=" + ovChipkaartList +
                 '}';
     }
 }

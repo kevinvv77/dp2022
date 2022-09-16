@@ -1,5 +1,9 @@
-package data;
+package data.reiziger;
 
+import data.adres.AdresDAO;
+import data.ovchipkaart.OVChipkaartDAO;
+import data.ovchipkaart.OVChipkaartDAOPsql;
+import domain.OVChipkaart;
 import domain.Reiziger;
 
 import java.sql.Connection;
@@ -12,14 +16,20 @@ import java.util.List;
 public class ReizigerDAOPsql implements ReizigerDAO {
     private final Connection connection;
     private AdresDAO adresDAO;
+    private OVChipkaartDAO ovChipkaartDAO;
 
-    public ReizigerDAOPsql(Connection connection, AdresDAO adresDAO) {
+    public ReizigerDAOPsql(Connection connection, AdresDAO adresDAO, OVChipkaartDAO ovChipkaartDAO) {
         this.connection = connection;
         this.adresDAO = adresDAO;
+        this.ovChipkaartDAO = ovChipkaartDAO;
     }
 
     public void setAdresDAO(AdresDAO adresDAO) {
         this.adresDAO = adresDAO;
+    }
+
+    public void setOvChipkaartDAO(OVChipkaartDAO ovChipkaartDAO) {
+        this.ovChipkaartDAO = ovChipkaartDAO;
     }
 
     @Override
@@ -37,6 +47,9 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             saveReiziger.executeUpdate();
             saveReiziger.close();
             adresDAO.save(reiziger.getAdres());
+
+            for(var ov : reiziger.getOvChipkaartList())
+                ovChipkaartDAO.save(ov);
 
             return true;
 
@@ -64,6 +77,9 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
             adresDAO.update(reiziger.getAdres());
 
+            for(var ov : reiziger.getOvChipkaartList())
+                ovChipkaartDAO.update(ov);
+
             return true;
         } catch (SQLException e){
             System.out.println(e.getMessage());
@@ -76,6 +92,8 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     public boolean delete(Reiziger reiziger) {
         try {
             adresDAO.delete(reiziger.getAdres());
+            for(var ov: reiziger.getOvChipkaartList())
+                ovChipkaartDAO.delete(ov);
 
             var deleteQuery = "DELETE FROM reiziger WHERE reiziger_id = ?";
             var deleteReiziger = connection.prepareStatement(deleteQuery);
@@ -156,8 +174,11 @@ public class ReizigerDAOPsql implements ReizigerDAO {
         var tussenvoegsel = rs.getString("tussenvoegsel") == null ? "" : rs.getString("tussenvoegsel");
         var achternaam = rs.getString("achternaam");
         var geboortedatum = rs.getDate("geboortedatum");
-        var reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum, null);
+
+        var reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum, null, null);
         var adres = adresDAO.findByReiziger(reiziger);
+        var ovchipkaartList = ovChipkaartDAO.findByReiziger(reiziger);
+        reiziger.setOvChipkaartList(ovchipkaartList);
         reiziger.setAdres(adres);
 
         return reiziger;

@@ -1,4 +1,4 @@
-package data;
+package data.adres;
 
 import domain.Adres;
 import domain.Reiziger;
