@@ -6,6 +6,7 @@ import domain.Reiziger;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class AdresDAOPsql implements AdresDAO {
@@ -77,17 +78,32 @@ public class AdresDAOPsql implements AdresDAO {
 
     @Override
     public Adres findByReiziger(Reiziger reiziger) {
+        try {
+            var query = "SELECT * FROM adres WHERE reiziger_id = ?";
+            var statement = connection.prepareStatement(query);
+
+            statement.setInt(1, reiziger.getId());
+
+            var rs = statement.executeQuery();
+
+            rs.next();
+            return buildAdresWithResultSet(rs);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
         return null;
     }
 
     @Override
     public Adres findById(int id) {
         try {
-            var query = "SELECT FROM adres WHERE adres_id = ?";
+            var query = "SELECT * FROM adres WHERE adres_id = ?";
             var statement = connection.prepareStatement(query);
 
             statement.setInt(1, id);
             var rs = statement.executeQuery();
+            rs.next();
 
             return buildAdresWithResultSet(rs);
         } catch (SQLException e) {
@@ -98,16 +114,32 @@ public class AdresDAOPsql implements AdresDAO {
 
     @Override
     public List<Adres> findAll() {
+        List<Adres> adressen = new ArrayList<>();
+
+        try {
+            var query = "SELECT * FROM adres";
+            var statement = connection.prepareStatement(query);
+
+            var rs = statement.executeQuery();
+
+            while(rs.next()) {
+                adressen.add(buildAdresWithResultSet(rs));
+            }
+
+            return adressen;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
         return null;
     }
 
     private Adres buildAdresWithResultSet(ResultSet rs) throws SQLException {
-        var id = rs.getInt("adres_id");
-        var postcode = rs.getString("postcode");
-        var huisnummer = rs.getString("huisnummer");
-        var straat = rs.getString("straat");
-        var woonplaats = rs.getString("woonplaats");
-        var reizigerId = rs.getInt("reiziger_id");
+        int id = rs.getInt("adres_id");
+        String postcode = rs.getString("postcode");
+        String huisnummer = rs.getString("huisnummer");
+        String straat = rs.getString("straat");
+        String woonplaats = rs.getString("woonplaats");
+        int reizigerId = rs.getInt("reiziger_id");
 
         return new Adres(id, postcode, huisnummer, straat, woonplaats, reizigerId);
     }

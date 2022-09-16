@@ -11,9 +11,15 @@ import java.util.List;
 
 public class ReizigerDAOPsql implements ReizigerDAO {
     private final Connection connection;
+    private AdresDAO adresDAO;
 
-    public ReizigerDAOPsql(Connection connection) {
+    public ReizigerDAOPsql(Connection connection, AdresDAO adresDAO) {
         this.connection = connection;
+        this.adresDAO = adresDAO;
+    }
+
+    public void setAdresDAO(AdresDAO adresDAO) {
+        this.adresDAO = adresDAO;
     }
 
     @Override
@@ -30,6 +36,7 @@ public class ReizigerDAOPsql implements ReizigerDAO {
 
             saveReiziger.executeUpdate();
             saveReiziger.close();
+            adresDAO.save(reiziger.getAdres());
 
             return true;
 
@@ -55,6 +62,8 @@ public class ReizigerDAOPsql implements ReizigerDAO {
             updateReiziger.executeUpdate();
             updateReiziger.close();
 
+            adresDAO.update(reiziger.getAdres());
+
             return true;
         } catch (SQLException e){
             System.out.println(e.getMessage());
@@ -66,6 +75,8 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     @Override
     public boolean delete(Reiziger reiziger) {
         try {
+            adresDAO.delete(reiziger.getAdres());
+
             var deleteQuery = "DELETE FROM reiziger WHERE reiziger_id = ?";
             var deleteReiziger = connection.prepareStatement(deleteQuery);
 
@@ -140,12 +151,15 @@ public class ReizigerDAOPsql implements ReizigerDAO {
     }
 
     private Reiziger buildReiziger(ResultSet rs) throws SQLException {
-        int id = rs.getInt("reiziger_id");
-        String voorletters = rs.getString("voorletters");
-        String tussenvoegsel = rs.getString("tussenvoegsel") == null ? "" : rs.getString("tussenvoegsel");
-        String achternaam = rs.getString("achternaam");
-        Date geboortedatum = rs.getDate("geboortedatum");
+        var id = rs.getInt("reiziger_id");
+        var voorletters = rs.getString("voorletters");
+        var tussenvoegsel = rs.getString("tussenvoegsel") == null ? "" : rs.getString("tussenvoegsel");
+        var achternaam = rs.getString("achternaam");
+        var geboortedatum = rs.getDate("geboortedatum");
+        var reiziger = new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum, null);
+        var adres = adresDAO.findByReiziger(reiziger);
+        reiziger.setAdres(adres);
 
-        return new Reiziger(id, voorletters, tussenvoegsel, achternaam, geboortedatum);
+        return reiziger;
     }
 }

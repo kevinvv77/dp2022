@@ -8,15 +8,17 @@ public class Reiziger {
     private String tussenvoegels;
     private String achternaam;
     private Date geboorteDatum;
+    private Adres adres;
 
     public Reiziger() {}
 
-    public Reiziger(int id, String voorletters, String tussenvoegels, String achternaam, Date geboorteDatum) {
+    public Reiziger(int id, String voorletters, String tussenvoegels, String achternaam, Date geboorteDatum, Adres adres) {
         this.id = id;
         this.voorletters = voorletters;
         this.tussenvoegels = tussenvoegels;
         this.achternaam = achternaam;
         this.geboorteDatum = geboorteDatum;
+        this.adres = adres;
     }
 
     public int getId() {
@@ -59,13 +61,23 @@ public class Reiziger {
         this.achternaam = achternaam;
     }
 
+    public Adres getAdres() {
+        return adres;
+    }
+
+    public void setAdres(Adres adres) {
+        this.adres = adres;
+    }
+
     @Override
     public String toString() {
         return "Reiziger{" +
                 "id=" + id +
                 ", voorletters='" + voorletters + '\'' +
                 ", tussenvoegels='" + tussenvoegels + '\'' +
+                ", achternaam='" + achternaam + '\'' +
                 ", geboorteDatum=" + geboorteDatum +
+                ", adres=" + adres +
                 '}';
     }
 }
